@@ -286,7 +286,8 @@ def exportar_a_excel(diferencias_collection):
     mes_actual = now.strftime("%m")
     año_actual = now.strftime("%Y")
 
-    nombre_archivo = f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/mozart/sales_audit/diferencias-KAMI-{mes_actual}-{año_actual}.xlsx'
+    nombre_archivo = f'diferencias-KAMI-{mes_actual}-{año_actual}.xlsx'
+    #f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/mozart/sales_audit/diferencias-KAMI-{mes_actual}-{año_actual}.xlsx'
 
     diferencias_df.to_excel(nombre_archivo, index=False)
 
