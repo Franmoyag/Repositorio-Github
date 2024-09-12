@@ -280,8 +280,8 @@ if __name__ == "__main__":
     end_date = (current_date - timedelta(days=1)).isoformat()
 
     params = {
-        'start_date': 1722470399, #start_date,
-        'end_date': 1725148800 #end_date
+        'start_date': 1725148800, #start_date,
+        'end_date': 1727740799 #end_date
     }
 
     headers = {
@@ -332,7 +332,8 @@ if __name__ == "__main__":
     start_date_epoch = int(datetime.fromisoformat(start_date).timestamp())
     end_date_epoch = int(datetime.fromisoformat(end_date).timestamp())
 
-    date_range = generate_date_range(start_date_epoch, end_date_epoch)
+    #date_range = generate_date_range(start_date_epoch, end_date_epoch)
+    date_range = generate_date_range(1725148800, 1727740799) #Fecha Manual
 
     total_document_data = 0
     for date in date_range:
