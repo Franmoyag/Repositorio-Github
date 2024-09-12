@@ -4,10 +4,10 @@ import pandas as pd
 
 # Conexión a MongoDB
 client = MongoClient("mongodb://localhost:27017/")
-db = client["data_bsale"]
+db = client["data_bsale"] # Modificar DB segun necesidad.
 
 # Colecciones
-count_documents_col = db["count_documents"]
+count_documents_col = db["count_bsale_report"]
 count_expenses_col = db["count_expenses"]
 sales_report_col = db["sales_report"]
 
@@ -18,8 +18,8 @@ doc_pipeline = [
     {
         "$group": {
             "_id": {"local": "$local", "year": "$year", "month": "$month"},
-            "total_documents": {"$sum": "$total_amount"},
-            "total_docs_count": {"$sum": "$total_documents"}
+            "total_documents": {"$sum": "$subtotal_bruto"},
+            "total_docs_count": {"$sum": "$total_documentos"}
         }
     }
 ]
