@@ -22,27 +22,35 @@ start_date = datetime(current_year, current_month, 1, 0, 0, 0, tzinfo=timezone.u
 end_date = datetime(current_year, current_month, calendar.monthrange(current_year, current_month)[1], 23, 59, 59, tzinfo=timezone.utc)
 
 # Convertir las fechas a formato Epoch
-start_date_epoch = int(start_date.timestamp())
-end_date_epoch = int(end_date.timestamp())
+#start_date_epoch = int(start_date.timestamp())
+#end_date_epoch = int(end_date.timestamp())
+
+start_date_epoch = 1722470400 # Fecha Inicio Manual
+end_date_epoch = 1725148799 # Fecha Termino Manual
 
 
 # Pipeline de emulacion de reporte Bsale
 pipeline = [
+    #{
+    #    "$match": {"address": {"$eq": "Alameda 430"}
+    #               
+    #               }
+    #},
     {
         "$addFields": {
-            "state": {"$convert": 
-                      {"input": "$state",
-                       "to": "int",
-                        "onError": 0,
-                        "onNull": 0}
-                      }
+            "itemCount": {"$size": "$details.items"}
+        }
+    },
+    {
+        "$addFields": {
+            "state": {"$convert": {"input": "$state", "to": "int", "onError": 0, "onNull": 0}}
         }
     },
     {
         "$match": {
             "document_type_info.name": {"$ne": "GUÍA DE DESPACHO ELECTRÓNICA T"},
             "state": {"$ne": 1},
-            "emissionDate": {"$gte": 1722470400, "$lte": 1725148799}
+            "emissionDate": {"$gte": start_date_epoch, "$lte": end_date_epoch}
         }
     },
     {
@@ -58,9 +66,7 @@ pipeline = [
             "user.id": {"$toInt": "$user.id"},
             "office.id": {"$toInt": "$office.id"},
             "details.items.variant.id": {"$toInt": "$details.items.variant.id"},
-            "temp_unique_id": {
-                "$concat": [{"$toString": "$_id"},"_",{"$toString": {"$rand": {}}}]
-            }
+            "temp_unique_id": {"$concat": [{"$toString": "$_id"}, "_", {"$toString": {"$rand": {}}}]}
         }
     },
     {
@@ -148,6 +154,11 @@ pipeline = [
         }
     },
     {
+        "$match": {
+            "product_info.product_type.name": {"$in": ["DIRECTOS", "PAQUETERIA"]}
+        }
+    },
+    {
         "$lookup": {
             "from": "price_lists",
             "let": {
@@ -158,8 +169,8 @@ pipeline = [
                     "$match": {
                         "$expr": {
                             "$and": [
-                                {"$eq": ["$variant.id","$$variant_id"]},
-                                {"$eq": ["$condition","LISTA VENTA"]               }
+                                {"$eq": ["$variant.id", "$$variant_id"]},
+                                {"$eq": ["$condition", "LISTA VENTA"]}
                             ]
                         }
                     }
@@ -185,8 +196,8 @@ pipeline = [
                     "$match": {
                         "$expr": {
                             "$and": [
-                                {"$eq": ["$variant.id","$$variant_id"]},
-                                {"$eq": ["$condition","LISTA COSTO"]}
+                                {"$eq": ["$variant.id", "$$variant_id"]},
+                                {"$eq": ["$condition", "LISTA COSTO"]}
                             ]
                         }
                     }
@@ -207,8 +218,8 @@ pipeline = [
             "Tipo Movimiento": {
                 "$switch": {
                     "branches": [
-                        { "case": { "$in": ["$document_type.id", [2, 9, 12]] }, "then": "Devolucion" },
-                        { "case": { "$in": ["$document_type.id", [38, 1, 6, 15, 27]] }, "then": "Venta" }
+                        {"case": {"$in": ["$document_type.id", [2, 9, 12]]}, "then": "Devolucion"},
+                        {"case": {"$in": ["$document_type.id", [38, 1, 6, 15, 27]]}, "then": "Venta"}
                     ],
                     "default": ""
                 }
@@ -232,7 +243,7 @@ pipeline = [
                 "$switch": {
                     "branches": [
                         {"case": {"$eq": ["$client.code", "16.376.062-2"]}, "then": "Otro"},
-                        {"case": {"$eq": ["$client.code", "77.398.566-9"]}, "then": "LatinPizza Conchali"},
+                        {"case": {"$eq": ["$client.code", "77.398.566-9"]}, "then": "Latin Pizza Conchali"},
                         {"case": {"$eq": ["$address", "Neptuno 823"]}, "then": "Lo Prado"},
                         {"case": {"$eq": ["$address", "AMERICO VESPUCIO 456   AMRICA DEL SUR"]}, "then": "Maipu Vespucio"},
                         {"case": {"$eq": ["$address", "AV LO CRUZAT 0460"]}, "then": "Quilicura"},
@@ -279,8 +290,8 @@ pipeline = [
                         {"case": {"$eq": ["$address", "Manuel montt 689 local 2"]}, "then": "Villa Alemana"},
                         {"case": {"$eq": ["$address", "Avenida Concon Reñaca 41, Local 2"]}, "then": "Con Con"},
                         {"case": {"$eq": ["$address", "Av Condell #201"]}, "then": "Quillota"},
-                        {"case": {"$eq": ["$address", "M RODRIGUEZ 1202"]}, "then": "Concepcion"},
-                        {"case": {"$eq": ["$address", "TEGUALDA NORTE 38 LC 6 6 CONCEPCION"]}, "then": "Concepcion 2 Collao"},
+                        {"case": {"$eq": ["$address", "M RODRIGUEZ 1202"]}, "then": "Concepción"},
+                        {"case": {"$eq": ["$address", "TEGUALDA NORTE 38 LC 6 6 CONCEPCION"]}, "then": "Concepción 2 Collao"},
                         {"case": {"$eq": ["$address", "LOS AROMOS 1477 SAN PEDRO DE LA PAZ"]}, "then": "San Pedro de la Paz"},
                         {"case": {"$eq": ["$address", "Avenida Latorre 454 LOCAL 5"]}, "then": "Tome"},
                         {"case": {"$eq": ["$address", "MANUEL MONTT 02500 2 CORONEL"]}, "then": "Coronel"},
@@ -292,26 +303,26 @@ pipeline = [
                         {"case": {"$eq": ["$address", "Coronel alejandro sepulveda 1789"]}, "then": "Peñalolen 2"},
                         {"case": {"$eq": ["$address", "MANUEL MONTT 0560 CORONEL"]}, "then": "Coronel 2"},
                         {"case": {"$eq": ["$address", "Canal la punta 8770"]}, "then": "Kamver"},
-                        {"case": {"$eq": ["$address", "SANTA ROSA Nro 7917"]}, "then": "LatinPizza San Ramón"},
-                        {"case": {"$eq": ["$address", "Carretera General San Martín 359 Local 7"]}, "then": "LatinPizza Colina"},
-                        {"case": {"$eq": ["$address", "Av. Central Cardenal Raúl Silva Henfiques 7456 ex 6756 Local B"]}, "then": "LatinPizza Lo Espejo"},
-                        {"case": {"$eq": ["$address", " El Manzano 391 Local 3"]}, "then": "LatinPizza Padre Hurtado"},
-                        {"case": {"$eq": ["$address", "QUENAC 6110"]}, "then": "LatinPizza Las Rejas"},
-                        {"case": {"$eq": ["$address", "AVENIDA PADRE HURTADO 13180"]}, "then": "LatinPizza El Bosque"},
-                        {"case": {"$eq": ["$address", "Joaquín Edward Bello 10488 A"]}, "then": "LatinPizza La Granja"},
-                        {"case": {"$eq": ["$address", "Av. Pdte Kennedy 817"]}, "then": "LatinPizza Buin"},
-                        {"case": {"$eq": ["$address", "Presbitero Moraga 307 C"]}, "then": "LatinPizza Curacavi"},
-                        {"case": {"$eq": ["$address", "Lo Errazuriz 2091 A"]}, "then": "LatinPizza Cerrillos"},
-                        {"case": {"$eq": ["$address", "AV.VIC.MACKENNA 1545 Bloque:11 Depto.:K"]}, "then": "LatinPizza Peñaflor"},
-                        {"case": {"$eq": ["$address", "Av 4 Poniente 0383-B"]}, "then": "LatinPizza 4 Poniente"},
+                        {"case": {"$eq": ["$address", "SANTA ROSA Nro 7917"]}, "then": "Latin pizza san ramon"},
+                        {"case": {"$eq": ["$address", "Carretera General San Martín 359 Local 7"]}, "then": "Latin Pizza Colina"},
+                        {"case": {"$eq": ["$address", "Av. Central Cardenal Raúl Silva Henfiques 7456 ex 6756 Local B"]}, "then": "Latin Pizza Lo Espejo"},
+                        {"case": {"$eq": ["$address", " El Manzano 391 Local 3"]}, "then": "Latin Pizza Padre Hurtado"},
+                        {"case": {"$eq": ["$address", "QUENAC 6110"]}, "then": "Latin Pizza Las Rejas"},
+                        {"case": {"$eq": ["$address", "AVENIDA PADRE HURTADO 13180"]}, "then": "Latin Pizza El Bosque"},
+                        {"case": {"$eq": ["$address", "Joaquín Edward Bello 10488 A"]}, "then": "Latin Pizza La Granja"},
+                        {"case": {"$eq": ["$address", "Av. Pdte Kennedy 817"]}, "then": "Latin Pizza Buin"},
+                        {"case": {"$eq": ["$address", "Presbitero Moraga 307 C"]}, "then": "Latin Pizza Curacavi"},
+                        {"case": {"$eq": ["$address", "Lo Errazuriz 2091 A"]}, "then": "Latin Pizza Cerrillos"},
+                        {"case": {"$eq": ["$address", "AV.VIC.MACKENNA 1545 Bloque:11 Depto.:K"]}, "then": "Latin Pizza Peñaflor"},
+                        {"case": {"$eq": ["$address", "Av 4 Poniente 0383-B"]}, "then": "Latin Pizza 4 Poniente"},
                         {"case": {"$eq": ["$address", "Alberto LLona 1432"]}, "then": "LatinPizza Plaza Maipu"},
-                        {"case": {"$eq": ["$address", "Libertador Bernardo O'higgins 446 #2"]}, "then": "LatinPizza Talagante"},
-                        {"case": {"$eq": ["$address", "Av Carrascal 4652"]}, "then": "LatinPizza Carrascal"},
-                        {"case": {"$eq": ["$address", "AVENIDA EL SALTO 3260 LOCAL 1"]}, "then": "LatinPizza El Salto"},
-                        {"case": {"$eq": ["$address", "DOMINGO SANTA MARIA 3195"]}, "then": "LatinPizza Renca"},
+                        {"case": {"$eq": ["$address", "Libertador Bernardo O'higgins 446 #2"]}, "then": "Latin Pizza Talagante"},
+                        {"case": {"$eq": ["$address", "Av Carrascal 4652"]}, "then": "Latin Pizza Quinta Normal"},
+                        {"case": {"$eq": ["$address", "AVENIDA EL SALTO 3260 LOCAL 1"]}, "then": "Latin Pizza El Salto / Recoleta"},
+                        {"case": {"$eq": ["$address", "DOMINGO SANTA MARIA 3195"]}, "then": "Latin Pizza Renca"},
                         {"case": {"$eq": ["$address", "CONCHA Y TORO 610 - LOCAL 3"]}, "then": "Puente Alto 3"},
                         {"case": {"$eq": ["$address", "SN PABLO 6004 LAUTARO LO PRADO"]}, "then": "San Pablo"},
-                        {"case": {"$eq": ["$address", "Pje. Cinco 2603"]}, "then": "Hualpen"},
+                        {"case": {"$eq": ["$address", "Pje. Cinco 2603"]}, "then": "Hualpén"},
                         {"case": {"$eq": ["$address", "Carretera general San Martín 042  local 1"]}, "then": "Colina 2"}
                     ],
                     "default": "Sin Sucursal"
@@ -332,46 +343,48 @@ pipeline = [
             "Local": "$local",
             "Tracking Number": "$trackingNumber",
             "Fecha Documento": {"$dateToString": {"format": "%d/%m/%Y", "date": {"$toDate": {"$multiply": ["$emissionDate", 1000]}}}},
-            "Fecha y Hora de Venta": {"$let": {"vars": {"adjustedDate": {"$dateAdd": {"startDate": {"$toDate": {"$multiply": ["$generationDate", 1000]}}, "unit": "hour", "amount": -4}}},
-                    "in": {"$concat": [{"$dateToString": {"format": "%d/%m/%Y", "date": "$$adjustedDate"}}, " ",
-                                       {"$cond": {"if": {"$lte": [{"$hour": {"date": "$$adjustedDate"}}, 12]},
-                                    "then": {"$dateToString": {"format": "%H:%M AM", "date": "$$adjustedDate"}},
-                                    "else": {"$dateToString": {"format": "%H:%M PM", "date": "$$adjustedDate"}}}}]}}},
+            "Fecha y Hora de Venta": {"$let": {
+                "vars": {
+                    "adjustedDate": {"$dateAdd": {"startDate": {"$toDate": {"$multiply": ["$generationDate", 1000]}}, "unit": "hour", "amount": -4}}
+                },
+                "in": {"$concat": [{"$dateToString": {"format": "%d/%m/%Y", "date": "$$adjustedDate"}}, " ",
+                                    {"$cond": {"if": {"$lte": [{"$hour": {"date": "$$adjustedDate"}}, 12]},
+                                                "then": {"$dateToString": {"format": "%H:%M AM", "date": "$$adjustedDate"}},
+                                                "else": {"$dateToString": {"format": "%H:%M PM", "date": "$$adjustedDate"}}}}]}
+            }},
             "Lista de Precio": "$client_info.price_list.name",
             "Tipo de Producto / Servicio": "$product_info.product_type.name",
             "SKU": "$variant_info.code",
             "Producto / Servicio": "$product_info.name",
             "Variante": "$variant_info.description",
             "Precio Neto Unitario": {"$round": [{"$cond": {"if": { "$eq": ["$Tipo Movimiento", "Devolucion"] },
-                                    "then": { "$multiply": ["$details.items.netUnitValue", -1] },
-                                    "else": "$details.items.netUnitValue"}},0]},            
+                                    "then": { "$multiply": ["$details.items.netUnitValue", -1] }, # Se cambia -1
+                                    "else": "$details.items.netUnitValue"}},0]},
             "Cantidad": {"$round": [{"$cond": {"if": { "$eq": ["$Tipo Movimiento", "Devolucion"] },
-                                        "then": { "$multiply": ["$details.items.quantity", -1] },
+                                        "then": { "$multiply": ["$details.items.quantity", -1] }, # Se cambia -1
                                         "else": "$details.items.quantity"}},1]},
-            
-
             "Subtotal Impuestos": {"$round": [{"$cond": {"if": { "$eq": ["$Tipo Movimiento", "Devolucion"] },
-                                    "then": { "$multiply": ["$details.items.taxAmount", -1] },
+                                    "then": { "$multiply": ["$details.items.taxAmount", -1] }, # Se cambia -1
                                     "else": "$details.items.taxAmount"}},0]},
-
-
             "Subtotal Bruto": {"$round": [{"$cond": {"if": { "$eq": ["$Tipo Movimiento", "Devolucion"] },
-                                    "then": { "$multiply": ["$details.items.totalAmount", -1] },
+                                    "then": { "$multiply": ["$details.items.totalAmount", -1] }, # Se cambia -1
                                     "else": "$details.items.totalAmount"}},0]},
-
-
             "Costo Neto Unitario": {"$round": [{"$cond": {"if": { "$eq": ["$Tipo Movimiento", "Devolucion"] },
-                                        "then": { "$multiply": ["$price_list_costo.variantValue", -1] },
+                                        "then": { "$multiply": ["$price_list_costo.variantValue", -1] }, # Se cambia -1
                                         "else": "$price_list_costo.variantValue"}},1]},
             "Margen": {"$round": [{"$cond": {"if": { "$eq": ["$Tipo Movimiento", "Devolucion"] },
-                                        "then": { "$multiply": [{"$round": [{"$multiply": [{"$subtract": ["$price_list_venta.variantValue", "$price_list_costo.variantValue"]}, "$details.items.quantity"]}, 2]}, -1] },
+                                        "then": { "$multiply": [{"$round": [{"$multiply": [{"$subtract": ["$price_list_venta.variantValue", "$price_list_costo.variantValue"]}, "$details.items.quantity"]}, 2]}, -1] },#Se cambia -1
                                         "else": { "$round": [{"$multiply": [{"$subtract": ["$price_list_venta.variantValue", "$price_list_costo.variantValue"]}, "$details.items.quantity"]}, 2] }}},1]},
             "Costo Total Neto": {"$round": [{"$cond": {"if": { "$eq": ["$Tipo Movimiento", "Devolucion"] },
-                                        "then": { "$multiply": [{"$round": [{"$multiply": ["$details.items.quantity", "$price_list_costo.variantValue"]}, 2]}, -1] },
+                                        "then": { "$multiply": [{"$round": [{"$multiply": ["$details.items.quantity", "$price_list_costo.variantValue"]}, 2]}, -1] }, # Se cambia -1
                                         "else": { "$round": [{"$multiply": ["$details.items.quantity", "$price_list_costo.variantValue"]}, 2] }}},1]},
-            "% Margen": {"$round": [{"$cond": {"if": { "$gt": [{"$multiply": ["$details.items.quantity", "$price_list_costo.variantValue"]}, 1] },
-                                        "then": { "$round": [{"$multiply": [{"$divide": [{"$multiply": [{"$subtract": ["$price_list_venta.variantValue", "$price_list_costo.variantValue"]}, "$details.items.quantity"]}, {"$multiply": ["$details.items.quantity", "$price_list_costo.variantValue"]}]}, 100]}, 0] },
-                                        "else": 0}}, 1]},
+            "% Margen": {"$round": [{"$cond": {
+                "if": {"$gt": [{"$multiply": ["$details.items.quantity", "$price_list_costo.variantValue"]}, 1]},
+                "then": {"$multiply": [{"$divide": [
+                    {"$multiply": [{"$subtract": ["$price_list_venta.variantValue","$price_list_costo.variantValue"]}, "$details.items.quantity"]}, 
+                    {"$multiply": ["$details.items.quantity", "$price_list_costo.variantValue"]}]}, 100]},
+                "else": 0
+            }}, 1]},
             "Direccion Cliente": "$address",
             "Comuna Cliente": "$municipality",
             "Ciudad Cliente": "$city"
@@ -385,49 +398,57 @@ pipeline = [
     }
 ]
 
+
+
 # Ejecutar la consulta
 collection = db['documents']
-batch_size = 1000
-results = []
-file_count = 0
+
 
 # Utilizar cursores para procesar datos por partes
 cursor = collection.aggregate(pipeline, allowDiskUse=True)
 
-# Colección destino para almacenar los resultados
-output_collection = db['bsale_report']  
+# Convertir los resultados en una lista
+results = list(cursor)
 
-while cursor.alive:
-    batch = list(cursor.batch_size(batch_size))
-    if not batch:
-        break
 
-    df_batch = pd.DataFrame(batch)
+# Verificar si hay resultados antes de crear el DataFrame
+if results:
+    try:
+        # Crear DataFrame directamente desde los resultados
+        df = pd.DataFrame(results)
 
-    # Iterar sobre cada fila del DataFrame para insertar en MongoDB
-    for index, row in df_batch.iterrows():
-        document_dict = row.to_dict()
+        print("Datos obtenidos correctamente:")
+        print(df.head())  # Muestra los primeros 5 resultados para depuración
 
-        # Definir un filtro único para evitar duplicados basado en el documento original
-        unique_filter = {"N° Documento": document_dict.get("N° Documento"), "Variante": document_dict.get("Variante")}
+        # Verificar cuántas filas hay en el DataFrame
+        print(f"Total de documentos obtenidos: {len(df)}")
 
-        # Usar upsert=True para insertar si no existe o actualizar si ya existe
-        output_collection.update_one(unique_filter, {"$set": document_dict}, upsert=True)
+        # Almacenar los resultados en MongoDB (Nombre de Colección)
+        output_collection = db['bsale_report']
 
-    # Guardar el lote en un archivo CSV temporal para uso posterior si es necesario
-    temp_file = f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/Mozart/temp_{file_count}.csv'
-    df_batch.to_csv(temp_file, index=False)
-    file_count += 1
+        # Iterar sobre cada fila del DataFrame para insertar/actualizar en MongoDB
+        for _, row in df.iterrows():
+            document_dict = row.to_dict()
 
-# Combinar todos los archivos CSV temporales en un único archivo CSV
-combined_df = pd.concat([pd.read_csv(f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/Mozart/temp_{i}.csv') for i in range(file_count)])
-file_name = now.strftime("%B_%Y").lower()  # Formato "mes_año" en minúsculas
-output_file = f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/Mozart/reporte_{file_name}.csv'
-combined_df.to_csv(output_file, index=False)
+            # Definir un filtro único para evitar duplicados. Asegúrate de que el filtro sea lo suficientemente específico.
+            unique_filter = {
+                "N° Documento": document_dict.get("N° Documento"),
+                "SKU": document_dict.get("SKU"),
+                "Producto / Servicio": document_dict.get("Producto / Servicio")
+            }
 
-# Limpiar los archivos temporales
-for i in range(file_count):
-    os.remove(f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/Mozart/temp_{i}.csv')
+            # Usar upsert=True para insertar si no existe o actualizar si ya existe
+            output_collection.update_one(unique_filter, {"$set": document_dict}, upsert=True)
 
-print(f'Reporte guardado en {output_file}')
-print("Datos almacenados en la colección sin duplicados.")
+        # Guardar el archivo CSV final (Modificar Directorio segun necesidad.)
+        file_name = now.strftime("%B_%Y").lower()  # Formato "mes_año"
+        output_file = f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/Mozart/reporte_{file_name}.csv'
+        df.to_csv(output_file, index=False)
+
+        print(f'Reporte guardado en {output_file}')
+        print("Datos almacenados en la colección sin duplicados.")
+
+    except Exception as e:
+        print(f"Ocurrió un error durante la conversión a DataFrame o el guardado en la colección: {e}")
+else:
+    print("No se encontraron resultados para procesar.")
