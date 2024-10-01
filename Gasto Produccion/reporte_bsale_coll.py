@@ -6,7 +6,7 @@ import os
 
 # Configuración de MongoDB
 MONGO_URI = 'mongodb://localhost:27017'
-DB_NAME = 'data_bsale' # Modificar Base de Datos.
+DB_NAME = 'production_expenses' # Modificar Base de Datos.
 
 # Conexión a MongoDB con tiempos de espera aumentados
 client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=100000, connectTimeoutMS=100000)
@@ -22,11 +22,11 @@ start_date = datetime(current_year, current_month, 1, 0, 0, 0, tzinfo=timezone.u
 end_date = datetime(current_year, current_month, calendar.monthrange(current_year, current_month)[1], 23, 59, 59, tzinfo=timezone.utc)
 
 # Convertir las fechas a formato Epoch
-#start_date_epoch = int(start_date.timestamp())
-#end_date_epoch = int(end_date.timestamp())
+start_date_epoch = int(start_date.timestamp())
+end_date_epoch = int(end_date.timestamp())
 
-start_date_epoch = 1722470400 # Fecha Inicio Manual
-end_date_epoch = 1725148799 # Fecha Termino Manual
+#start_date_epoch = 1722470400 # Fecha Inicio Manual
+#end_date_epoch = 1725148799 # Fecha Termino Manual
 
 
 # Pipeline de emulacion de reporte Bsale
@@ -245,12 +245,12 @@ pipeline = [
                         {"case": {"$eq": ["$client.code", "16.376.062-2"]}, "then": "Otro"},
                         {"case": {"$eq": ["$client.code", "77.398.566-9"]}, "then": "Latin Pizza Conchali"},
                         {"case": {"$eq": ["$address", "Neptuno 823"]}, "then": "Lo Prado"},
-                        {"case": {"$eq": ["$address", "AMERICO VESPUCIO 456   AMRICA DEL SUR"]}, "then": "Maipu Vespucio"},
+                        {"case": {"$eq": ["$address", "AMERICO VESPUCIO 456   AMRICA DEL SUR"]}, "then": "Maipú Vespucio"},
                         {"case": {"$eq": ["$address", "AV LO CRUZAT 0460"]}, "then": "Quilicura"},
                         {"case": {"$eq": ["$address", "ESPERANZA 789"]}, "then": "Santiago Centro"},
                         {"case": {"$eq": ["$address", "MANUTARA 8992"]}, "then": "La Florida"},
                         {"case": {"$eq": ["$address", "RIO DE JANEIRO 428"]}, "then": "Independencia"},
-                        {"case": {"$eq": ["$address", "AVENIDA PORTALES 330"]}, "then": "Plaza Maipu"},
+                        {"case": {"$eq": ["$address", "AVENIDA PORTALES 330"]}, "then": "Plaza Maipú"},
                         {"case": {"$eq": ["$address", "DOMINGO SANTA MARIA 3259"]}, "then": "Renca"},
                         {"case": {"$eq": ["$address", "BULNES 608  A"]}, "then": "San Bernardo"},
                         {"case": {"$eq": ["$address", "APOQUINDO 5232"]}, "then": "Las Condes"},
@@ -259,7 +259,7 @@ pipeline = [
                         {"case": {"$eq": ["$address", "AVENIDA MANUEL RODRIGUEZ 1915"]}, "then": "Patio Centro"},
                         {"case": {"$eq": ["$address", "DIAGONAL ORIENTE 5353"]}, "then": "Patio Egaña"},
                         {"case": {"$eq": ["$address", "Av. Padre Hurtado Nº 13280"]}, "then": "El Bosque"},
-                        {"case": {"$eq": ["$address", "SANTA ROSA 7917"]}, "then": "San Ramon"},
+                        {"case": {"$eq": ["$address", "SANTA ROSA 7917"]}, "then": "San Ramón"},
                         {"case": {"$eq": ["$address", "JOSE MIGUEL CARRERA 8637"]}, "then": "La Cisterna"},
                         {"case": {"$eq": ["$address", "Av. Macul 4591-4593"]}, "then": "Macul"},
                         {"case": {"$eq": ["$address", "Av. Club Hípico 5424"]}, "then": "Pedro Aguirre Cerda"},
@@ -298,8 +298,8 @@ pipeline = [
                         {"case": {"$eq": ["$address", "Manuel Rodríguez 1898 local 4, Chiguayante"]}, "then": "Chiguayante"},
                         {"case": {"$eq": ["$address", "COLON 1474 1478 1478 1 TALCAHUANO"]}, "then": "Talcahuano"},
                         {"case": {"$eq": ["$address", "ARTURO PRAT 449 - 453 A CALERA"]}, "then": "La Calera"},
-                        {"case": {"$eq": ["$address", "RAMON FREIRE 899 1"]}, "then": "Quilpue"},
-                        {"case": {"$eq": ["$address", "avenida alemania 690 Los angeles"]}, "then": "Los Angeles"},
+                        {"case": {"$eq": ["$address", "RAMON FREIRE 899 1"]}, "then": "Quilpué"},
+                        {"case": {"$eq": ["$address", "avenida alemania 690 Los angeles"]}, "then": "Los Ángeles"},
                         {"case": {"$eq": ["$address", "Coronel alejandro sepulveda 1789"]}, "then": "Peñalolen 2"},
                         {"case": {"$eq": ["$address", "MANUEL MONTT 0560 CORONEL"]}, "then": "Coronel 2"},
                         {"case": {"$eq": ["$address", "Canal la punta 8770"]}, "then": "Kamver"},
@@ -441,11 +441,11 @@ if results:
             output_collection.update_one(unique_filter, {"$set": document_dict}, upsert=True)
 
         # Guardar el archivo CSV final (Modificar Directorio segun necesidad.)
-        file_name = now.strftime("%B_%Y").lower()  # Formato "mes_año"
-        output_file = f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/Mozart/reporte_{file_name}.csv'
-        df.to_csv(output_file, index=False)
+        #file_name = now.strftime("%B_%Y").lower()  # Formato "mes_año"
+        #output_file = f'C:/Users/siste/OneDrive/Escritorio/Reportes Python/Mozart/reporte_{file_name}.csv'
+        #df.to_csv(output_file, index=False)
 
-        print(f'Reporte guardado en {output_file}')
+        #print(f'Reporte guardado en {output_file}')
         print("Datos almacenados en la colección sin duplicados.")
 
     except Exception as e:
