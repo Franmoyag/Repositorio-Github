@@ -4,7 +4,7 @@ import pandas as pd
 
 # Conexión a MongoDB
 client = MongoClient("mongodb://localhost:27017/")
-db = client["data_bsale"] # Modificar DB segun necesidad.
+db = client["production_expenses"] # Modificar DB segun necesidad.
 
 # Colecciones
 count_documents_col = db["count_bsale_report"]
@@ -138,12 +138,12 @@ df = pd.DataFrame(data)
 #print("Combined Data:", df)
 
 # Guardar el DataFrame en formato CSV
-csv_file_path = r"C:\Users\siste\OneDrive\Escritorio\Reportes Python\Mozart\reporte_gasto_produccion.csv"
-df.to_csv(csv_file_path, index=False)
+#csv_file_path = r"C:\Users\siste\OneDrive\Escritorio\Reportes Python\Mozart\reporte_gasto_produccion.csv"
+#df.to_csv(csv_file_path, index=False)
 
 # Guardar el DataFrame en formato Excel
-excel_file_path = r"C:\Users\siste\OneDrive\Escritorio\Reportes Python\Mozart\reporte_gasto_produccion.xlsx"
+excel_file_path = r"reporte_gasto_produccion.xlsx"
 df.to_excel(excel_file_path, index=False)
 
-print(f"Reporte guardado en formato CSV: {csv_file_path}")
+#print(f"Reporte guardado en formato CSV: {csv_file_path}")
 print(f"Reporte guardado en formato Excel: {excel_file_path}")
