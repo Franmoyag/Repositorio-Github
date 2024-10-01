@@ -20,7 +20,7 @@ POSTGRES_PASS = "j4mdl9to5sd"
 # INTERNAL SERVER PARAMETERS
 
 MONGO_HOST = "127.0.0.1"
-MONGO_DB = "data_bsale"
+MONGO_DB = "production_expenses" #Base de Datos segun necesidad.
 MONGO_COLLECTION = "wasabi_expenses"
 MONGO_USER = ""
 MONGO_PASS = ""
