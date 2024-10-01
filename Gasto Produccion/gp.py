@@ -4,13 +4,14 @@ import pandas as pd
 
 # Conexión a MongoDB
 client = MongoClient("mongodb://localhost:27017/")
-db = client["production_expenses"] # Modificar DB segun necesidad.
+db = client["data_bsale"] # Modificar DB segun necesidad.
 
 # Colecciones
 count_documents_col = db["count_bsale_report"]
 count_expenses_col = db["count_expenses"]
 sales_report_col = db["sales_report"]
 
+gasto_produccion = db["gasto_produccion"]
 
 
 # Total de documentos por sucursal, año y mes
@@ -147,3 +148,13 @@ df.to_excel(excel_file_path, index=False)
 
 #print(f"Reporte guardado en formato CSV: {csv_file_path}")
 print(f"Reporte guardado en formato Excel: {excel_file_path}")
+
+# Insertar o actualizar los datos en la colección de MongoDB (sin duplicar)
+for record in df.to_dict('records'):
+    gasto_produccion.update_one(
+        {"local": record["local"], "year": record["year"], "month": record["month"]},  # Filtro para verificar si ya existe
+        {"$set": record},  # Si existe, se actualizan los valores
+        upsert=True  # Si no existe, se inserta un nuevo documento
+    )
+
+print(f"Datos insertados correctamente en la colección de MongoDB 'gasto_produccion'.")
