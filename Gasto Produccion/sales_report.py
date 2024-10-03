@@ -18,7 +18,7 @@ POSTGRES_PASS = "j4mdl9to5sd"
 # INTERNAL SERVER PARAMETERS
 
 MONGO_HOST = "127.0.0.1"
-MONGO_DB = "data_bsale" # Base de datos segun Necesidad.
+MONGO_DB = "production_expenses"
 MONGO_COLLECTION = "sales_report"
 MONGO_USER = ""
 MONGO_PASS = ""
@@ -88,29 +88,44 @@ def fetch_and_store_gp():
         mongo_db = mongo_client[MONGO_DB]
         mongo_collection = mongo_db[MONGO_COLLECTION]
 
-        # Eliminar índice existente en 'id' si existe
-        #mongo_collection.drop_index('id_1')
+        # Verificar si el índice 'working_day_1' existe antes de intentar eliminarlo
+        index_name = 'working_day_1'
+        indexes = mongo_collection.index_information()
+        if index_name in indexes:
+            mongo_collection.drop_index(index_name)
+            print(f"Índice '{index_name}' eliminado.")
 
-        # Crear índice único en el campo 'working_day' para evitar duplicados
-        mongo_collection.create_index("working_day", unique=True)
+        # Crear un índice único compuesto en 'working_day' y 'store_type'
+        mongo_collection.create_index([("working_day", pymongo.ASCENDING), ("store_type", pymongo.ASCENDING)], unique=True)
+        print("Índice compuesto 'working_day' y 'store_type' creado.")
 
         # Preparar los datos para insertar en MongoDB
         for row in results:
             row = convert_data_types(row)   # Convertir fechas a datetime
             doc = {colnames[i]: row[i] for i in range(len(colnames))}
             
-            if 'working_day' in doc:
+            if 'working_day' in doc and 'store_type' in doc:
                 try:
-                    mongo_collection.update_one(
-                        {"working_day": doc["working_day"]},
-                        {"$set": doc},
-                        upsert=True
-                    )
-                    print(f"Documento con working_day {doc['working_day']} insertado/actualizado en la Base de Datos.")
+                    # Comprobar si ya existe un registro con el mismo 'working_day' y 'store_type'
+                    existing_doc = mongo_collection.find_one({"working_day": doc["working_day"], "store_type": doc["store_type"]})
+                    
+                    if existing_doc:
+                        # Si ya existe un registro con el mismo 'working_day' y 'store_type', actualizarlo
+                        mongo_collection.update_one(
+                            {"working_day": doc["working_day"], "store_type": doc["store_type"]},
+                            {"$set": doc}
+                        )
+                        print(f"Documento con working_day {doc['working_day']} y store_type {doc['store_type']} actualizado en la Base de Datos.")
+                    else:
+                        # Si no existe un registro con el mismo 'working_day' y 'store_type', insertar uno nuevo
+                        mongo_collection.insert_one(doc)
+                        print(f"Nuevo documento insertado con working_day {doc['working_day']} y store_type {doc['store_type']}.")
+                
                 except Exception as e:
-                    print(f"Error al insertar/actualizar el documento con working_day {doc['working_day']}: {str(e)}")
+                    print(f"Error al insertar/actualizar el documento con working_day {doc['working_day']} y store_type {doc['store_type']}: {str(e)}")
             else:
-                print(f"El documento no tiene un campo 'working_day': {doc}")
+                print(f"El documento no tiene un campo 'working_day' o 'store_type': {doc}")
+
 
     except Exception as e:
         print(f"Error al ejecutar la consulta o al insertar en MongoDB: {e}")
