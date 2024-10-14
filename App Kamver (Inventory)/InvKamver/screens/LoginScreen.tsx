@@ -1,4 +1,4 @@
-// Archivo: LoginScreen.tsx
+
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
