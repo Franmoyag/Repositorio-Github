@@ -5,13 +5,16 @@ import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import InventoryScreen from './screens/InventoryScreen';
 import CaptureScreen from './screens/CaptureScreen';
-
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { RootStackParamList }   from './screens/types';
-
+import { useState } from 'react'
+import { View, Text } from 'react-native';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
+
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
