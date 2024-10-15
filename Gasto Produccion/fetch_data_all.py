@@ -9,7 +9,7 @@ from pymongo import errors
 # Configuración
 ACCESS_TOKEN = 'e57d148002d91e58f152bece58d810e50bc84286'
 MONGO_URI = 'mongodb://localhost:27017'
-DB_NAME = 'production_expenses' # Modificar Nombre de BD Segun corresponda.
+DB_NAME = 'data_bsale' # Modificar Nombre de BD Segun corresponda.
 LIMIT = 25  # Resultado por página.
 MAX_RETRIES = 5  # Intentos máximos por error.
 RETRY_DELAY = 5  # Tiempo entre reintentos (Segundos)
@@ -280,12 +280,12 @@ if __name__ == "__main__":
     end_date = (current_date - timedelta(days=1)).isoformat()
 
     params = {
-        'start_date': start_date,
-        'end_date': end_date
+        #'start_date': start_date,
+        #'end_date': end_date
 
         #Fecha Manual.
-        #'start_date': 1725148800,
-        #'end_date': 1727740799
+        'start_date': 1717200000,
+        'end_date': 1719791999
     }
 
     headers = {
@@ -336,10 +336,10 @@ if __name__ == "__main__":
     start_date_epoch = int(datetime.fromisoformat(start_date).timestamp())
     end_date_epoch = int(datetime.fromisoformat(end_date).timestamp())
 
-    date_range = generate_date_range(start_date_epoch, end_date_epoch)
+    #date_range = generate_date_range(start_date_epoch, end_date_epoch)
     
     #Fecha Manual
-    #date_range = generate_date_range(1725148800, 1727740799)
+    date_range = generate_date_range(1717200000, 1719791999)
 
     total_document_data = 0
     for date in date_range:

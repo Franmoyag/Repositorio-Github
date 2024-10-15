@@ -1,9 +1,12 @@
+import pymongo
 from pymongo import MongoClient
 from datetime import datetime
 import pandas as pd
 
+MONGO_URI = 'mongodb://localhost:27017'
+
 # Conexión a MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=100000, connectTimeoutMS=100000)
 db = client["data_bsale"] # Modificar DB segun necesidad.
 
 # Colecciones
@@ -16,6 +19,28 @@ gasto_produccion = db["gasto_produccion"]
 
 # Total de documentos por sucursal, año y mes
 doc_pipeline = [
+    {
+        "$addFields": {
+            "local": {
+                "$switch": {
+                    "branches": [
+                        {"case": {"$eq": ["$local", "Tome"]}, "then": "Tomé"},
+                        {"case": {"$eq": ["$local", "Quilpué"]}, "then": "Quilpue"},
+                        {"case": {"$eq": ["$local", "San Ramon"]}, "then": "San Ramón"},
+                        {"case": {"$eq": ["$local", "Plaza Maipu"]}, "then": "Plaza Maipú"},
+                        {"case": {"$eq": ["$local", "LatinPizza Plaza Maipu"]}, "then": "Patio Maipu"},
+                        {"case": {"$eq": ["$local", "Latin Pizza Buin"]}, "then": "Patio Buin"},
+                        {"case": {"$eq": ["$local", "Maipu Vespucio"]}, "then": "Maipú Vespucio"},
+                        {"case": {"$eq": ["$local", "Maipú 4 Poniente 2"]}, "then": "4 Poniente 2"},
+                        {"case": {"$eq": ["$local", "Maipu 4 Poniente"]}, "then": "4 Poniente"},
+                        {"case": {"$eq": ["$local", "Los Angeles"]}, "then": "Los Ángeles"},
+                        {"case": {"$eq": ["$local", "Latin Pizza 4 Poniente"]}, "then": "4 Poniente 2"}
+                    ],
+                    "default": "$local"
+                }
+            }
+        }
+    },
     {
         "$group": {
             "_id": {"local": "$local", "year": "$year", "month": "$month"},
@@ -50,8 +75,43 @@ expense_results = list(count_expenses_col.aggregate(expense_pipeline))
 sales_pipeline = [
     {
         "$group": {
-            "_id": {"store_name": "$store_name", "year": {"$year": "$date"}, "month": {"$month": "$date"}},
+            "_id": {
+                "store_name": "$store_name", 
+                "year": {"$year": "$date"}, 
+                "month": {"$month": "$date"}
+            },
             "total_sales": {"$sum": "$sub_total"}
+        }
+    },
+    {
+        "$project": {
+            "_id": 0,  # Eliminamos _id porque ya no lo necesitamos
+            "store_name": {
+                "$switch": {
+                    "branches": [
+                        {"case": {"$eq": ["$_id.store_name", "Con Con (Test)"]}, "then": "Con Con"},
+                        {"case": {"$eq": ["$_id.store_name", "Curacavi (Test)"]}, "then": "Curacavi"},
+                        {"case": {"$eq": ["$_id.store_name", "La Cisterna (Test)"]}, "then": "La Cisterna"},
+                        {"case": {"$eq": ["$_id.store_name", "Quilpúe"]}, "then": "Quilpue"},
+                        {"case": {"$eq": ["$_id.store_name", "Renca Poniente (Test)"]}, "then": "Renca Poniente"},
+                        {"case": {"$eq": ["$_id.store_name", "Maipú 4 Poniente"]}, "then": "4 Poniente"},
+                        {"case": {"$eq": ["$_id.store_name", "Kami Maipú 4 Poniente 2"]}, "then": "4 Poniente 2"},
+                        {"case": {"$eq": ["$_id.store_name", "Kamisushi Patio Buin"]}, "then": "Patio Buin"},
+                        {"case": {"$eq": ["$_id.store_name", "Kamisushi Patio Centro"]}, "then": "Patio Centro"},
+                        {"case": {"$eq": ["$_id.store_name", "Kamisushi Patio Egaña"]}, "then": "Patio Egaña"},
+                        {"case": {"$eq": ["$_id.store_name", "Kamisushi Patio Maipú"]}, "then": "Patio Maipu"},
+                        {"case": {"$eq": ["$_id.store_name", "Latin Patio Buin"]}, "then": "Patio Buin"},
+                        {"case": {"$eq": ["$_id.store_name", "Latin Patio Centro"]}, "then": "Patio Centro"},
+                        {"case": {"$eq": ["$_id.store_name", "Latin Patio Egaña"]}, "then": "Patio Egaña"},
+                        {"case": {"$eq": ["$_id.store_name", "Latin Patio Maipú"]}, "then": "Patio Maipu"},
+                        {"case": {"$eq": ["$_id.store_name", "Latin Patio Maipú"]}, "then": "Patio Maipu"}
+                    ],
+                    "default": "$_id.store_name"
+                }
+            },
+            "year": "$_id.year",
+            "month": "$_id.month",
+            "total_sales": 1
         }
     }
 ]
@@ -110,13 +170,13 @@ for exp in expense_results:
 
 
 for sale in sales_results:
-    key = (sale["_id"]["store_name"], sale["_id"]["year"], sale["_id"]["month"])
+    key = (sale["store_name"], sale["year"], sale["month"])
 
     if key not in combined_data:
         combined_data[key] = {
-            "local": sale["_id"]["store_name"],
-            "year": sale["_id"]["year"],
-            "month": sale["_id"]["month"],
+            "local": sale["store_name"],
+            "year": sale["year"],
+            "month": sale["month"],
             "total_documents": 0,
             "total_docs_count": 0,
             "total_expenses": 0,

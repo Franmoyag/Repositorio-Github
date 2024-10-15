@@ -6,7 +6,7 @@ import os
 
 # Configuración de MongoDB
 MONGO_URI = 'mongodb://localhost:27017'
-DB_NAME = 'production_expenses' # Modificar Base de Datos.
+DB_NAME = 'data_bsale' # Modificar Base de Datos.
 
 # Conexión a MongoDB con tiempos de espera aumentados
 client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=100000, connectTimeoutMS=100000)
@@ -22,11 +22,11 @@ start_date = datetime(current_year, current_month, 1, 0, 0, 0, tzinfo=timezone.u
 end_date = datetime(current_year, current_month, calendar.monthrange(current_year, current_month)[1], 23, 59, 59, tzinfo=timezone.utc)
 
 # Convertir las fechas a formato Epoch
-start_date_epoch = int(start_date.timestamp())
-end_date_epoch = int(end_date.timestamp())
+#start_date_epoch = int(start_date.timestamp())
+#end_date_epoch = int(end_date.timestamp())
 
-#start_date_epoch = 1722470400 # Fecha Inicio Manual
-#end_date_epoch = 1725148799 # Fecha Termino Manual
+start_date_epoch = 1727740800 # Fecha Inicio Manual
+end_date_epoch = 1730419199 # Fecha Termino Manual
 
 
 # Pipeline de emulacion de reporte Bsale
@@ -269,7 +269,7 @@ pipeline = [
                         {"case": {"$eq": ["$address", "BAJOS DE MATTE 0510 2"]}, "then": "Buin"},
                         {"case": {"$eq": ["$address", "INDEPENDENCIA 5741"]}, "then": "Conchali"},
                         {"case": {"$eq": ["$address", "Departamental Nro 36, Dpto AyB"]}, "then": "San Joaquin"},
-                        {"case": {"$eq": ["$address", "CUATRO PONIENTE 01121 dpto 2"]}, "then": "Maipu 4 Poniente"},
+                        {"case": {"$eq": ["$address", "CUATRO PONIENTE 01121 dpto 2"]}, "then": "4 Poniente"},
                         {"case": {"$eq": ["$address", "Calle J Arrieta 6599, Los Guindos"]}, "then": "Peñalolen"},
                         {"case": {"$eq": ["$address", "Las Rejas Sur Nro 1392"]}, "then": "Las Rejas"},
                         {"case": {"$eq": ["$address", "AV PEDRO FONTOVA 7810, DPTO 4"]}, "then": "Huechuraba"},
@@ -293,7 +293,7 @@ pipeline = [
                         {"case": {"$eq": ["$address", "M RODRIGUEZ 1202"]}, "then": "Concepción"},
                         {"case": {"$eq": ["$address", "TEGUALDA NORTE 38 LC 6 6 CONCEPCION"]}, "then": "Concepción 2 Collao"},
                         {"case": {"$eq": ["$address", "LOS AROMOS 1477 SAN PEDRO DE LA PAZ"]}, "then": "San Pedro de la Paz"},
-                        {"case": {"$eq": ["$address", "Avenida Latorre 454 LOCAL 5"]}, "then": "Tome"},
+                        {"case": {"$eq": ["$address", "Avenida Latorre 454 LOCAL 5"]}, "then": "Tomé"},
                         {"case": {"$eq": ["$address", "MANUEL MONTT 02500 2 CORONEL"]}, "then": "Coronel"},
                         {"case": {"$eq": ["$address", "Manuel Rodríguez 1898 local 4, Chiguayante"]}, "then": "Chiguayante"},
                         {"case": {"$eq": ["$address", "COLON 1474 1478 1478 1 TALCAHUANO"]}, "then": "Talcahuano"},
@@ -310,12 +310,12 @@ pipeline = [
                         {"case": {"$eq": ["$address", "QUENAC 6110"]}, "then": "Latin Pizza Las Rejas"},
                         {"case": {"$eq": ["$address", "AVENIDA PADRE HURTADO 13180"]}, "then": "Latin Pizza El Bosque"},
                         {"case": {"$eq": ["$address", "Joaquín Edward Bello 10488 A"]}, "then": "Latin Pizza La Granja"},
-                        {"case": {"$eq": ["$address", "Av. Pdte Kennedy 817"]}, "then": "Latin Pizza Buin"},
+                        {"case": {"$eq": ["$address", "Av. Pdte Kennedy 817"]}, "then": "Patio Buin"},
                         {"case": {"$eq": ["$address", "Presbitero Moraga 307 C"]}, "then": "Latin Pizza Curacavi"},
                         {"case": {"$eq": ["$address", "Lo Errazuriz 2091 A"]}, "then": "Latin Pizza Cerrillos"},
                         {"case": {"$eq": ["$address", "AV.VIC.MACKENNA 1545 Bloque:11 Depto.:K"]}, "then": "Latin Pizza Peñaflor"},
-                        {"case": {"$eq": ["$address", "Av 4 Poniente 0383-B"]}, "then": "Latin Pizza 4 Poniente"},
-                        {"case": {"$eq": ["$address", "Alberto LLona 1432"]}, "then": "LatinPizza Plaza Maipu"},
+                        {"case": {"$eq": ["$address", "Av 4 Poniente 0383-B"]}, "then": "4 Poniente 2"},
+                        {"case": {"$eq": ["$address", "Alberto LLona 1432"]}, "then": "Patio Maipu"},
                         {"case": {"$eq": ["$address", "Libertador Bernardo O'higgins 446 #2"]}, "then": "Latin Pizza Talagante"},
                         {"case": {"$eq": ["$address", "Av Carrascal 4652"]}, "then": "Latin Pizza Quinta Normal"},
                         {"case": {"$eq": ["$address", "AVENIDA EL SALTO 3260 LOCAL 1"]}, "then": "Latin Pizza El Salto / Recoleta"},
@@ -323,7 +323,10 @@ pipeline = [
                         {"case": {"$eq": ["$address", "CONCHA Y TORO 610 - LOCAL 3"]}, "then": "Puente Alto 3"},
                         {"case": {"$eq": ["$address", "SN PABLO 6004 LAUTARO LO PRADO"]}, "then": "San Pablo"},
                         {"case": {"$eq": ["$address", "Pje. Cinco 2603"]}, "then": "Hualpén"},
-                        {"case": {"$eq": ["$address", "Carretera general San Martín 042  local 1"]}, "then": "Colina 2"}
+                        {"case": {"$eq": ["$address", "Carretera general San Martín 042  local 1"]}, "then": "Colina 2"},
+                        {"case": {"$eq": ["$address", "AV SAN JUAN 1029 LC 04 UN 55 COND STA CAROLINA"]}, "then": "Machalí"},
+                        {"case": {"$eq": ["$address", "Santa rosa 12980"]}, "then": "La Pintana"},
+                        {"case": {"$eq": ["$address", "Vicuña Mackenna 8256 B"]}, "then": "La Florida 2"}
                     ],
                     "default": "Sin Sucursal"
                 }

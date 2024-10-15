@@ -18,7 +18,7 @@ POSTGRES_PASS = "j4mdl9to5sd"
 # INTERNAL SERVER PARAMETERS
 
 MONGO_HOST = "127.0.0.1"
-MONGO_DB = "production_expenses"
+MONGO_DB = "data_bsale"
 MONGO_COLLECTION = "sales_report"
 MONGO_USER = ""
 MONGO_PASS = ""

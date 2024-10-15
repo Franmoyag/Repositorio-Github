@@ -1,4 +1,4 @@
-// Archivo: CaptureScreen.tsx
+
 import React, {useState, useEffect} from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
