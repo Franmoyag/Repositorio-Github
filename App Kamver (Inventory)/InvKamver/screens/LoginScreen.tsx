@@ -1,8 +1,10 @@
+//Screen de Login
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, Pressable } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types';
+import { PrimaryButton } from '../components';
 
 
 
@@ -46,7 +48,13 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+
+      <PrimaryButton
+        label = 'Login'
+        onPress={handleLogin}
+      />
+      
+      
     </View>
   );
 };
@@ -56,6 +64,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    alignItems: 'center'
   },
   title: {
     fontSize: 24,
@@ -65,7 +74,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
+    paddingHorizontal: 50,
     marginBottom: 10,
   },
 });

@@ -1,3 +1,4 @@
+//Screen de Captura de Inventario...
 
 import React, {useState, useEffect} from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
@@ -14,7 +15,6 @@ type Props = {
 };
 
 const CaptureScreen: React.FC<Props> = ({ route }) => {
-  const { warehouse, date } = route.params;
 
   const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
     alert(`Código QR escaneado: ${data}`);
@@ -48,8 +48,7 @@ const CaptureScreen: React.FC<Props> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Inventario {date}</Text>
-      <Text>{warehouse}</Text>
+      
       <View style={styles.container}>
         <CameraView style={styles.camera} facing={facing}>
           <View style={styles.buttonContainer}>

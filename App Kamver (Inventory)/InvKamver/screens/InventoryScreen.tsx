@@ -1,3 +1,4 @@
+//Screen Inicio de Inventario
 
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, TextInput } from 'react-native';
@@ -14,13 +15,21 @@ const InventoryScreen: React.FC<Props> = ({ navigation }) => {
   const [warehouse, setWarehouse] = useState('');
   const [date, setDate] = useState('');
 
+  //const handleStartInventory = () => {
+  //  if (warehouse && date) {
+  //    navigation.navigate('Capture', { warehouse, date });
+  //  } else {
+  //    alert('Por favor, seleccione una bodega y una fecha');
+  //  }
+  //
   const handleStartInventory = () => {
     if (warehouse && date) {
-      navigation.navigate('Capture', { warehouse, date });
+      navigation.navigate('NewInventory');
     } else {
       alert('Por favor, seleccione una bodega y una fecha');
     }
-  };
+  
+};
 
   return (
     <View style={styles.container}>
