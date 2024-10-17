@@ -3,10 +3,12 @@
 import React from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, FlatList, ScrollView, TextInput } from 'react-native';
 import { FAB } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAppStore } from '../store/useAppStore';
+
+import useProductStore from '../store/useAppStore';
 
 type NewInventoryNavigationProp = StackNavigationProp<RootStackParamList, 'NewInventory' | 'Capture'>;
 
@@ -17,26 +19,48 @@ const NewInventory: React.FC<Props> = ({ navigation }) => {
   const inventories = useAppStore((state) => state.inventories);
   const scannedData = useAppStore((state) => state.scannedData); // Obtener los datos escaneados
 
+  const { products, clearProducts } = useProductStore();
+
+  console.log(products);
+
   const handleNewCapture = () => {
     navigation.navigate('Capture');
   };
 
+
+  const handleChangeQuantity = (quantity) => {
+    //let quantity = event.target.value;
+    console.log(quantity); 
+  }
+
   return (
+    <ScrollView>
     <View style={styles.container}>
       <Text style={styles.header}>Usuario: {user?.email}</Text>
       {inventories.length > 0 && (
         <Text style={styles.subHeader}>Inventario ID: {inventories[inventories.length - 1].id}</Text>
       )}
       <Text style={styles.subHeader}>Datos Escaneados:</Text>
-      {scannedData.length > 0 ? (
-        scannedData.map((data, index) => (
-          <Text key={index} style={styles.scannedItem}>
-            {data}
-          </Text>
-        ))
-      ) : (
-        <Text style={styles.noData}>No hay datos escaneados aún.</Text>
-      )}
+      <View style={{flex: 1}}>
+        {
+          products.map(item => {
+            return (
+              <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={{margin: 10}}>{item.code}</Text>
+                <Text style={{margin: 10}}>{item.title}</Text>
+                <TextInput  style={{height: 30, width: 100, backgroundColor: '#FFF', borderWidth: 1, borderColor: '#f3f3f3'}} 
+                  value={item.quantity} 
+                  keyboardType="numeric"
+                  placeholder='Cantidad' 
+                  onChangeText={(quantity) => handleChangeQuantity(quantity)}
+                />
+                <Text style={{margin: 10}}>{item.unit}</Text>
+              </View>
+            )
+          })
+        }
+
+      </View>
       <FAB
         icon={(props) => <Icon {...props} name="camera-outline" size={20} />}
         label="Nueva Captura"
@@ -44,6 +68,7 @@ const NewInventory: React.FC<Props> = ({ navigation }) => {
         onPress={handleNewCapture}
       />
     </View>
+    </ScrollView>
   );
 };
 

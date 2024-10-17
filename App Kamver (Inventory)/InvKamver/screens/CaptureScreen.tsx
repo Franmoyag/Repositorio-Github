@@ -5,7 +5,7 @@ import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
 import { RootStackParamList } from './types';
-import { useAppStore } from '../store/useAppStore'; // Importar useAppStore
+import  useProductStore  from '../store/useAppStore'; // Importar useAppStore
 
 import { StackNavigationProp } from '@react-navigation/stack'
 
@@ -19,17 +19,26 @@ type Props = { navigation: NewInventoryNavigationProp };
 
 
 const CaptureScreen: React.FC<Props> = ({ navigation }) => {
-  const addInventoryData = useAppStore((state) => state.addInventoryData); // Acceder a la función para agregar datos al inventario
+   
 
   const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
     alert(`Código QR escaneado: ${data}`);
-    addInventoryData(data); // Guardar el dato escaneado en el estado global
+    
   };
 
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
 
+  const { addProduct }  = useProductStore();
+
   const [sound, setSound] = useState();
+
+  const [product, setProduct] = useState({
+    code: '',
+    title: '',
+    quantity: 0,
+    unit: '',
+  });
 
   //const addProduct = useAppStore((state) => state.addProduct({}))
 
@@ -92,8 +101,19 @@ const CaptureScreen: React.FC<Props> = ({ navigation }) => {
       
       const request = await getProduct(data);
    
+      const productName = request.items[0].product.name;
+      const productCode = data;
       
-      console.log('esto es lo que dice bsale ', request.items[0].product.name,',', request.items[0].description);
+      setProduct(prevState => ({
+        ...prevState,
+        code: productCode,
+        title: productName
+      }));
+
+      addProduct({code: productCode, title: productName, quantity: 0, unit: ''});
+
+      setProduct({ code: '', title: '', quantity: 0, unit: '' });
+
       navigation.navigate('NewInventory');
     }
 
