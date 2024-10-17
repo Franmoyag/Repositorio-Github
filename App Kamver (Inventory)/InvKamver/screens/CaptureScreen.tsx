@@ -3,17 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { RouteProp } from '@react-navigation/native';
+
 import { RootStackParamList } from './types';
 import { useAppStore } from '../store/useAppStore'; // Importar useAppStore
 
-type CaptureScreenRouteProp = RouteProp<RootStackParamList, 'Capture'>;
+import { StackNavigationProp } from '@react-navigation/stack'
 
-type Props = {
-  route: CaptureScreenRouteProp;
-};
+import { Audio } from 'expo-av';
 
-const CaptureScreen: React.FC<Props> = ({ route }) => {
+
+
+type NewInventoryNavigationProp = StackNavigationProp<RootStackParamList, 'NewInventory' | 'Capture'>;
+
+type Props = { navigation: NewInventoryNavigationProp };
+
+
+const CaptureScreen: React.FC<Props> = ({ navigation }) => {
   const addInventoryData = useAppStore((state) => state.addInventoryData); // Acceder a la función para agregar datos al inventario
 
   const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
@@ -23,6 +28,10 @@ const CaptureScreen: React.FC<Props> = ({ route }) => {
 
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+
+  const [sound, setSound] = useState();
+
+  //const addProduct = useAppStore((state) => state.addProduct({}))
 
   useEffect(() => {
     requestPermission();
@@ -46,13 +55,59 @@ const CaptureScreen: React.FC<Props> = ({ route }) => {
   function toggleCameraFacing() {
     setFacing((current) => (current === 'back' ? 'front' : 'back'));
   }
+  const getProduct = async (code:any) => {
+    if (!code) {
+      return false;
+    }
+
+    const request = await fetch("https://api.bsale.cl/v1/variants.json?code="+code+"&expand=[products]", {
+      method: 'GET',
+      headers:{
+        'access_token': 'e57d148002d91e58f152bece58d810e50bc84286'
+      }
+    });
+
+    const response = await request.json();
+
+    if (response) {
+      return response;
+    } else {
+      return false;
+    }
+  }
+
+  async function playSound() {
+    console.log('loading sound');
+    const { sound } =  await Audio.Sound.createAsync(require('../assets/audio/coin.mp3'));
+    setSound(sound);
+    console.log('Playing Sound');
+    await sound.playAsync()
+  }
+  const onReadQr = async (event:any) => {
+    let qr = event;
+    const data = event.data;
+    
+    if (data) {
+      playSound();
+      
+      const request = await getProduct(data);
+   
+      
+      console.log('esto es lo que dice bsale ', request.items[0].product.name,',', request.items[0].description);
+      navigation.navigate('NewInventory');
+    }
+
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.container}>
-        <CameraView style={styles.camera} facing={facing} barcodeScannerSettings={{
-    barcodeTypes: ["qr"],
-  }}>
+        <CameraView 
+          style={styles.camera} facing={facing} 
+          barcodeScannerSettings={{
+            barcodeTypes: ["qr"],
+          }}
+          onBarcodeScanned={ (event) => onReadQr(event)}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
               <Text style={styles.text}>Flip Camera</Text>
