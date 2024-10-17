@@ -8,28 +8,28 @@ import CaptureScreen from './screens/CaptureScreen';
 import NewInventory from './screens/NewInventory'
 import { RootStackParamList }   from './screens/types';
 import { PaperProvider } from 'react-native-paper';
-
 import IonIcon from 'react-native-vector-icons/Ionicons'
-
+import { useAppStore, AppState } from './store/useAppStore';
 
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
-  return (
+  const user = useAppStore((state: AppState) => state.user);
 
+  return (
     <PaperProvider
       settings={{
         icon: (props) => <IonIcon {...props} />
       }}
     >
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Inventory" component={InventoryScreen} />
           <Stack.Screen name="Capture" component={CaptureScreen} />
-          <Stack.Screen name="NewInventory" component={NewInventory}/>
+          <Stack.Screen name="NewInventory" component={NewInventory} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

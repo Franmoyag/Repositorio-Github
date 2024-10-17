@@ -1,12 +1,11 @@
-//Screen de Captura de Inventario...
+// CaptureScreen.tsx
 
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from './types';
-
+import { useAppStore } from '../store/useAppStore'; // Importar useAppStore
 
 type CaptureScreenRouteProp = RouteProp<RootStackParamList, 'Capture'>;
 
@@ -15,16 +14,19 @@ type Props = {
 };
 
 const CaptureScreen: React.FC<Props> = ({ route }) => {
+  const addInventoryData = useAppStore((state) => state.addInventoryData); // Acceder a la función para agregar datos al inventario
 
   const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
     alert(`Código QR escaneado: ${data}`);
-    // Aquí podrías guardar el dato escaneado
+    addInventoryData(data); // Guardar el dato escaneado en el estado global
   };
 
-
-  
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -42,15 +44,15 @@ const CaptureScreen: React.FC<Props> = ({ route }) => {
   }
 
   function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
   }
-
 
   return (
     <View style={styles.container}>
-      
       <View style={styles.container}>
-        <CameraView style={styles.camera} facing={facing}>
+        <CameraView style={styles.camera} facing={facing} barcodeScannerSettings={{
+    barcodeTypes: ["qr"],
+  }}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
               <Text style={styles.text}>Flip Camera</Text>
@@ -58,8 +60,7 @@ const CaptureScreen: React.FC<Props> = ({ route }) => {
           </View>
         </CameraView>
       </View>
-      
-      </View>
+    </View>
   );
 };
 
@@ -78,7 +79,8 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   camera: {
-    height: '50%',
+    flex: 0.2,
+    padding: 80
   },
   buttonContainer: {
     flex: 1,
