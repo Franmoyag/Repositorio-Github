@@ -60,6 +60,8 @@ const CaptureScreen: React.FC<Props> = ({ navigation }) => {
 
       navigation.navigate('NewInventory');
       setScanned(false);  // Permitir escanear nuevamente
+
+      console.log (data)
     }
   };
 

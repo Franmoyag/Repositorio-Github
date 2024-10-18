@@ -19,18 +19,21 @@ const InventariosRealizados: React.FC<Props> = ({ navigation }) => {
       {inventories.length > 0 ? (
         <FlatList
           data={inventories}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => `${item.id}-${index}`} // Asegura que cada clave sea única
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.inventoryItem}
-              onPress={() =>
+            style={styles.inventoryItem}
+            onPress={() => {
+                console.log('Inventario seleccionado:', item);
+                console.log('Productos pasando a detalles:', item.products);
+                    
                 navigation.navigate('InventoryDetails', {
-                  id: item.id,
-                  date: item.date || 'Fecha no Disponible',
-                  warehouse: item.warehouse,
-                  products: item.products || [],
-                })
-              }
+                    id: item.id,
+                    date: item.date || 'Fecha no Disponible',
+                    warehouse: item.warehouse,
+                    products: item.products || [], // Pasar los productos correctamente
+                });
+            }}
             >
               <Text style={styles.title}>ID Inventario: {item.id}</Text>
               <Text style={styles.date}>Fecha: {item.date}</Text>

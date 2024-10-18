@@ -8,6 +8,8 @@ import { FAB } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAppStore } from '../store/useAppStore';
 import useProductStore from '../store/useAppStore';
+import uuidv4 from 'uuid/v4';
+
 
 type NewInventoryNavigationProp = StackNavigationProp<RootStackParamList, 'NewInventory' | 'Capture'>;
 
@@ -16,11 +18,14 @@ type Props = { navigation: NewInventoryNavigationProp };
 const NewInventory: React.FC<Props> = ({ navigation }) => {
   const user = useAppStore((state) => state.user);
   const inventories = useAppStore((state) => state.inventories);
-  const { products, clearProducts, addProduct, updateProduct } = useProductStore();
+  const { products, addProduct, updateProduct } = useProductStore();
+  const addInventory = useAppStore((state) => state.addInventory);
 
-  // Controlar la cantidad a nivel de productos
-  const handleChangeQuantity = (code, quantity) => {
-    updateProduct(code, quantity);
+  // Controlar el cambio de cantidad en los productos usando el índice
+  const handleChangeQuantity = (index, quantity) => {
+    // Actualizar el producto usando el índice en lugar del código
+    updateProduct(index, { quantity: Number(quantity) });
+    console.log (quantity)
   };
 
   const handleNewCapture = () => {
@@ -40,6 +45,22 @@ const NewInventory: React.FC<Props> = ({ navigation }) => {
     addProduct(newProduct);
   };
 
+
+  // Función para guardar el inventario en el store
+  const saveInventory = () => {
+    const newInventory = {
+      id: uuidv4(), // Generar un ID único para el inventario
+      warehouse: 'Casa Matriz', // Cambia esto por el almacén correcto
+      date: new Date().toLocaleDateString(), // Fecha actual
+      products: [...products], // Lista de productos capturados
+    };
+  
+    console.log('Guardando inventario:', newInventory); // Verificar si los productos están siendo guardados
+  
+    addInventory(newInventory); // Guardar el inventario en el store
+    navigation.navigate('InventoriesList'); // Ir a la lista de inventarios
+  };
+
   return (
     <View style={styles.mainContainer}>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -50,16 +71,16 @@ const NewInventory: React.FC<Props> = ({ navigation }) => {
           )}
           <Text style={styles.subHeader}>Datos Escaneados:</Text>
           <View style={{ flex: 1 }}>
-            {products.map((item) => (
-              <View key={item.code} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {products.map((item, index) => (
+              <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ margin: 10 }}>{item.code}</Text>
                 <Text style={{ margin: 10 }}>{item.title}</Text>
                 <TextInput
-                  style={{ height: 30, width: 100, backgroundColor: '#FFF', borderWidth: 1, borderColor: '#f3f3f3' }}
-                  value={String(item.quantity)}  // Asegúrate de que es un string
+                  style={styles.input}
+                  value={String(item.quantity)}  // Convertir a string para el TextInput
                   keyboardType="numeric"
                   placeholder="Cantidad"
-                  onChangeText={(quantity) => handleChangeQuantity(item.code, quantity)}  // Actualiza la cantidad
+                  onChangeText={(quantity) => handleChangeQuantity(index, quantity)}  // Actualiza la cantidad usando el índice
                 />
                 <Text style={{ margin: 10 }}>{item.unit}</Text>
               </View>
@@ -74,6 +95,13 @@ const NewInventory: React.FC<Props> = ({ navigation }) => {
         label="Nueva Captura"
         style={styles.fab}
         onPress={() => navigation.navigate('Capture')}
+      />
+
+      <FAB
+        icon={(props) => <Icon {...props} name="save-outline" size={20} />}
+        label="Guardar Inventario"
+        style={[styles.fab, { bottom: 80, left: 16 }]} // Ajustamos para que no se superponga con "Nueva Captura"
+        onPress={saveInventory} 
       />
     </View>
   );
@@ -105,6 +133,14 @@ const styles = StyleSheet.create({
     right: 16,  // Separación desde el borde derecho
     bottom: 20,  // Separación desde el borde inferior
   },
+  input:{
+    height: 30,
+    width: 100,
+    backgroundColor: '#ffffff',
+    borderWidth: 0.3,
+    borderColor: 'black',
+    padding: 5,
+  }
 });
 
 export default NewInventory;

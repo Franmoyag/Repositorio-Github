@@ -26,6 +26,7 @@ interface Inventory {
   id: string;
   warehouse: string;
   date: string;
+  products: Product[]
 }
 
 export interface AppState {
@@ -40,11 +41,21 @@ export interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   user: null,
-  inventories: [],
+  inventories: [], // Inicializar inventarios vacíos
   scannedData: [],
+
+  // Función para manejar el inicio de sesión del usuario
   login: (email) => set(() => ({ user: { email, loggedIn: true } })),
-  addInventory: (inventory) => set((state) => ({ inventories: [...state.inventories, inventory] })),
-  addInventoryData: (data) => set((state) => ({ scannedData: [...state.scannedData, data] })),
+
+  // Función para agregar un nuevo inventario con productos
+  addInventory: (inventory) => set((state) => ({
+    inventories: [...state.inventories, inventory], // Guardar el inventario con productos
+  })),
+
+  // Función para agregar datos escaneados
+  addInventoryData: (data) => set((state) => ({
+    scannedData: [...state.scannedData, data],
+  })),
 }));
 
 // Crear el store usando zustand
@@ -58,10 +69,10 @@ const useProductStore = create<ProductStore>((set) => ({
     })),
 
   // Función para actualizar un producto
-  updateProduct: (code, updatedProduct) =>
+  updateProduct: (index, updatedFields) =>
     set((state) => ({
-      products: state.products.map((product) =>
-        product.code === code ? { ...product, ...updatedProduct } : product
+      products: state.products.map((product, i) =>
+        i === index ? { ...product, ...updatedFields } : product
       ),
     })),
 
