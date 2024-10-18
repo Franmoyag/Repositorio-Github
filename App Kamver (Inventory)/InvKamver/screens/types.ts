@@ -5,4 +5,6 @@ export type RootStackParamList = {
     Capture: undefined;
     Scanner: undefined;
     NewInventory: undefined;
+    InventoriesList: undefined;
+    InventoryDetails: undefined;
   };

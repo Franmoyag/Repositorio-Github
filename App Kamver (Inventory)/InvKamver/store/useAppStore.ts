@@ -12,7 +12,7 @@ interface Product {
 interface ProductStore {
   products: Product[];
   addProduct: (product: Product) => void;
-  updateProduct: (code: string, updatedProduct: Product) => void;
+  updateProduct: (code: string, quantity: number) => void;
   removeProduct: (code: string) => void;
   clearProducts: () => void;
 }
@@ -46,6 +46,7 @@ export const useAppStore = create<AppState>((set) => ({
   addInventory: (inventory) => set((state) => ({ inventories: [...state.inventories, inventory] })),
   addInventoryData: (data) => set((state) => ({ scannedData: [...state.scannedData, data] })),
 }));
+
 // Crear el store usando zustand
 const useProductStore = create<ProductStore>((set) => ({
   products: [],
@@ -60,7 +61,7 @@ const useProductStore = create<ProductStore>((set) => ({
   updateProduct: (code, updatedProduct) =>
     set((state) => ({
       products: state.products.map((product) =>
-        product.code === code ? updatedProduct : product
+        product.code === code ? { ...product, ...updatedProduct } : product
       ),
     })),
 

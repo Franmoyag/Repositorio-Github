@@ -4,6 +4,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types';
+import { useAppStore } from '../store/useAppStore';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -12,15 +13,21 @@ type Props = {
 };
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
+
+  const inventories = useAppStore((state) => state.inventories);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Inventarios Kamver</Text>
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Inventory')}>
         <Text style={styles.buttonText}>Iniciar Inventario</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.marginTop]} onPress={() => alert('Funcionalidad aún no implementada')}>
-        <Text style={styles.buttonText}>Ver Inventarios</Text>
-      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, styles.marginTop]} onPress={() => navigation.navigate('InventoriesList')}>
+  <Text style={styles.buttonText}>Ver Inventarios</Text>
+</TouchableOpacity>
+      {inventories.length === 0 && (
+        <Text style={styles.noInventoriesText}>Aun no hay inventarios realizados</Text>
+      )}
     </View>
   );
 };
@@ -48,6 +55,11 @@ const styles = StyleSheet.create({
   },
   marginTop: {
     marginTop: 10,
+  },
+  noInventoriesText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
   },
 });
 

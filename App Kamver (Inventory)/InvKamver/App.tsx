@@ -10,6 +10,8 @@ import { RootStackParamList }   from './screens/types';
 import { PaperProvider } from 'react-native-paper';
 import IonIcon from 'react-native-vector-icons/Ionicons'
 import { useAppStore, AppState } from './store/useAppStore';
+import InventoriesList from './screens/InventoriesList';
+import InventoryDetails from './screens/InventoryDetails';
 
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -30,6 +32,8 @@ const App: React.FC = () => {
           <Stack.Screen name="Inventory" component={InventoryScreen} />
           <Stack.Screen name="Capture" component={CaptureScreen} />
           <Stack.Screen name="NewInventory" component={NewInventory} />
+          <Stack.Screen name="InventoriesList" component={InventoriesList} />
+          <Stack.Screen name="InventoryDetails" component={InventoryDetails} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
