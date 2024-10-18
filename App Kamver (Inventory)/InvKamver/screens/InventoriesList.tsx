@@ -9,6 +9,8 @@ import {
 import { useAppStore } from "../store/useAppStore";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./types"; // Importa los tipos de rutas
+import Icon from 'react-native-vector-icons/Ionicons';
+import { FAB } from 'react-native-paper';
 
 
 
@@ -71,6 +73,13 @@ const InventariosRealizados: React.FC<Props> = ({ navigation }) => {
       ) : (
         <Text>No hay inventarios realizados aún.</Text>
       )}
+
+  <FAB
+        icon={(props) => <Icon {...props} name="send-outline" size={20} />}
+        label="Enviar Inventario"
+        style={[styles.fab, { bottom: 80, left: 16 }]} // Ajustamos para que no se superponga con "Nueva Captura"
+        onPress={() => alert('Inventario Enviado.')} 
+      />
     </View>
   );
 };
