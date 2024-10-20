@@ -32,7 +32,8 @@
     "react-native-svg": "^15.7.1",
     "react-native-vector-icons": "^10.2.0",
     "uuid": "^3.4.0",
-    "zustand": "^5.0.0"
+    "zustand": "^5.0.0",
+    "expo-sqlite": "~14.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.8",
